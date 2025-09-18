@@ -1,0 +1,429 @@
+import discord
+from discord.ext import commands
+from discord import app_commands
+
+class Cliant (commands.Bot):
+    async def on_ready(self):
+        print(f'Logged in as {self.user}!')
+
+        try:
+            guild = discord.Object(id="guild_id")
+            synced = await self.tree.sync(guild=guild)
+            print(f'Synced {len(synced)} commands to the guild: {guild.id}')
+            
+        except Exception as e:
+            print(f'Error syncing commands: {e}')
+
+    async def on_message(self, message):
+        if message.author == self.user:
+            return
+
+        if message.content.startswith('-info'):
+            await message.channel.send('Hello! I am CoreZX, I am still in development. I have been created to assist with any general server issues that may accur in the server.')
+
+        elif message.content.startswith('-exec'):
+            code = message.content[6:]
+            await message.channel.send(f'Executing code: `{code}`')
+            try:
+                exec(code)
+                await message.channel.send('Code executed successfully.')
+            except Exception as e:
+                await message.channel.send(f'Error executing code: {e}')
+
+        elif message.content.startswith('-wipe'):
+            await message.channel.send('Wiping all messages...')
+            await message.channel.purge(limit=100)
+            await message.channel.send('Messages wiped successfully.')
+
+        elif message.content.startswith('-debug'):
+            await message.channel.send('Debugging mode activated. Please provide the code to debug.')
+
+        elif message.content.startswith('-coin'):
+            import random
+            result = random.choice(['Heads', 'Tails'])
+            await message.channel.send(f'Coin flip result: {result}')
+
+        elif message.content.startswith('-shell'):
+            import subprocess
+            command = message.content[7:]
+            await message.channel.send(f'Executing shell command: `{command}`')
+            try:
+                result = subprocess.run(command, shell=True, capture_output=True, text=True)
+                if result.returncode == 0:
+                    await message.channel.send(f'Shell command executed successfully:\n{result.stdout}')
+                else:
+                    await message.channel.send(f'Error executing shell command:\n{result.stderr}')
+            except Exception as e:
+                await message.channel.send(f'Error executing shell command: {e}')
+
+        elif message.content.startswith('-debug_exec'):
+            code = message.content[12:]
+            await message.channel.send(f'Executing debug code: `{code}`')
+            try:
+                exec(code)
+                await message.channel.send('Debug code executed successfully.')
+            except Exception as e:
+                await message.channel.send(f'Error executing debug code: {e}')
+
+        elif message.content.startswith('-refresh'):
+            await message.channel.send('Refreshing commands...')
+            try:
+                synced = await self.tree.sync()
+                await message.channel.send(f'Commands refreshed. Synced {len(synced)} commands globally.')
+            except Exception as e:
+                await message.channel.send(f'Error refreshing commands: {e}')
+
+        elif message.content.startswith('-check'):
+            await message.channel.send('Checking system status...')
+            system_status = "System is running smoothly."
+            await message.channel.send(system_status)
+
+        elif message.content.startswith('-security'):
+            security_info = (
+                "Security Status:\n"
+                "No known vulnerabilities detected.\n"
+                "All systems operational."
+            )
+            await message.channel.send(security_info)
+
+        elif message.content.startswith('-server'):
+            server_info = (
+                f"Server Name: {message.guild.name}\n"
+                f"Total Members: {message.guild.member_count}\n"
+                f"Server ID: {message.guild.id}"
+            )
+            await message.channel.send(server_info)
+
+        elif message.content.startswith('-restart'):
+            await message.channel.send('Restarting the bot...')
+            await self.close()
+            await self.start(self.user.token)
+
+        elif message.content.startswith('-latency'):
+            latency = self.latency * 1000  # Convert to milliseconds
+            await message.channel.send(f'Current latency: {latency:.2f} ms')
+
+        elif message.content.startswith('-apistatus'):
+            api_status = "API is operational."
+            await message.channel.send(api_status)
+
+        elif message.content.startswith('-purge'):
+            try:
+                count = int(message.content.split()[1])
+                await message.channel.purge(limit=count)
+                await message.channel.send(f'Purged {count} messages.', delete_after=5)
+            except (IndexError, ValueError):
+                await message.channel.send('Please specify a valid number of messages to purge.')
+
+        elif message.content.startswith('-test'):
+            await message.channel.send('Test command received!')
+            
+        elif message.content.startswith('-version'):
+            await message.channel.send('CoreZX Version 1.0.0')
+
+        elif message.content.startswith('-sync'):
+            try:
+                synced = await self.tree.sync()
+                await message.channel.send(f'Synced {len(synced)} commands globally.')
+            except Exception as e:
+                await message.channel.send(f'Error syncing commands: {e}')
+
+        elif message.content.startswith('-system'):
+            system_info = (
+                "System Information:\n"
+                "Python Version: " + discord.__version__ + "\n"
+                "Discord.py Version: " + discord.__version__ + "\n"
+                "Bot ID: " + str(self.user.id)
+            )
+            await message.channel.send(system_info)
+
+        elif message.content.startswith('-user'):
+            user_info = (
+                f"User: {message.author.name}\n"
+                f"User ID: {message.author.id}\n"
+                f"Joined at: {message.author.joined_at}\n"
+                f"Avatar URL: {message.author.avatar.url if message.author.avatar else 'No avatar'}"
+            )
+            await message.channel.send(user_info)
+
+        elif message.content.startswith('-run'):
+            code = message.content[5:]
+            await message.channel.send(f'Running code: `{code}`')
+            try:
+                exec(code)
+                await message.channel.send('Code run successfully.')
+            except Exception as e:
+                await message.channel.send(f'Error running code: {e}')
+
+        elif message.content.startswith('-status'):
+            status = message.content[8:]
+            await self.change_presence(activity=discord.Game(name=status))
+            await message.channel.send(f'Status changed to: {status}')
+
+        elif message.content.startswith('-help'):
+            help_message = (
+                "Available commands:\n"
+                "-info: Information about the bot.\n"
+                "-exec <code>: Execute Python code.\n"
+                "-wipe: Wipe the last 100 messages in the channel.\n"
+                "-debug: Activate debugging mode.\n"
+                "-debug_exec <code>: Execute debug Python code.\n"
+                "-run <code>: Run Python code.\n"
+                "-status <status>: Change the bot's status.\n"
+                "-help: Show this help message.\n"
+                "-restart: Restart the bot.\n"
+                "-server: Show server information.\n"
+                "-latency: Show the current latency of the bot.\n"
+                "-test: Test command.\n"
+                "-version: Show the bot version.\n"
+                "-purge <number>: Purge a specified number of messages.\n"
+                "-sync: Sync commands globally.\n"
+                "-system: Show system information.\n"
+                "-user: Show information about the user.\n"
+                "-coin: Flip a coin.\n"
+                "-shell <command>: Execute a shell command.\n"
+                "-check: Check system status.\n"
+                "-security: Show security status.\n"
+                "-apistatus: Show API status.\n"
+                "-refresh: Refresh commands.\n"
+            )
+            await message.channel.send(help_message)
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.send("Command not found. Use -help to see available commands.")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("Missing required argument. Please check the command usage.")
+        else:
+            await ctx.send(f"An error occurred: {error}")
+
+    async def on_message_delete(self, message):
+        if message.author == self.user:
+            return
+        await message.channel.send(f'Message deleted: "{message.content}"')
+
+    async def on_message_edit(self, before, after):
+        if before.author == self.user:
+            return
+        
+        if before.content != after.content:
+            await before.channel.send(f'Message edited from: "{before.content}" to "{after.content}"')
+
+intents = discord.Intents.default()
+intents.message_content = True
+Cliant = Cliant(command_prefix='-', intents=intents)
+
+### Type guild id here ###
+
+guild_id = discord.Object(id=guild_id)
+
+
+@Cliant.tree.command(name="hello", description="Says hello!")
+@app_commands.guilds(guild_id)
+async def hello(interaction: discord.Interaction):
+    await interaction.response.send_message("Hello!")
+
+@Cliant.tree.command(name="printer", description="I will print the message you send!")
+@app_commands.guilds(guild_id)
+async def printer(interaction: discord.Interaction, printer: str):
+    await interaction.response.send_message(printer)
+
+@Cliant.tree.command(name="ping", description="Pong!")
+@app_commands.guilds(guild_id)
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("Pong!")
+
+@Cliant.tree.command(name="version", description="Get the bot version")
+@app_commands.guilds(guild_id)
+async def version(interaction: discord.Interaction):
+    await interaction.response.send_message("CoreZX Version 1.0.0")
+
+@Cliant.tree.command(name="status", description="Change the bot's status")
+@app_commands.guilds(guild_id)
+async def status(interaction: discord.Interaction, status: str):
+    await Cliant.change_presence(activity=discord.Game(name=status))
+    await interaction.response.send_message(f'Status changed to: {status}')
+
+@Cliant.tree.command(name="help", description="Show help message")
+@app_commands.guilds(guild_id)
+async def help_command(interaction: discord.Interaction):
+    help_message = (
+        "Available commands:\n"
+        "-hello: Says hello!\n"
+        "-printer <message>: Prints the message you send!\n"
+        "-ping: Pong!\n"
+        "-test: Test command.\n"
+        "-version: Get the bot version.\n"
+        "-status <status>: Change the bot's status.\n"
+        "-help: Show this help message.\n"
+        "-sync: Sync commands globally.\n"
+        "-system: Show system information.\n"
+        "-user: Show user information.\n"
+        "-apistatus: Show API status.\n"
+        "-refresh: Refresh commands.\n"
+        "-purge <number>: Purge a specified number of messages.\n"
+        "-coin: Flip a coin.\n"
+        "-shell <command>: Execute a shell command.\n"
+        "-debug_exec <code>: Execute debug Python code.\n"
+        "-restart: Restart the bot.\n"
+        "-debug: Activate debugging mode.\n"
+        "-latency: Show the current latency of the bot.\n"
+        "-check: Check system status.\n"
+        "-security: Show security status.\n"
+        "-server: Show server information.\n"
+        "-run <code>: Run Python code.\n"
+    )
+    await interaction.response.send_message(help_message)
+
+@Cliant.tree.command(name="sync", description="Sync commands globally")
+@app_commands.guilds(guild_id)
+async def sync_commands(interaction: discord.Interaction):
+    try:
+        synced = await Cliant.tree.sync()
+        await interaction.response.send_message(f'Synced {len(synced)} commands globally.')
+    except Exception as e:
+        await interaction.response.send_message(f'Error syncing commands: {e}')
+
+@Cliant.tree.command(name="system", description="Show system information")
+@app_commands.guilds(guild_id)
+async def system_info(interaction: discord.Interaction): 
+    system_info = (
+        "System Information:\n"
+        "Python Version: " + discord.__version__ + "\n"
+        "Discord.py Version: " + discord.__version__ + "\n"
+        "Bot ID: " + str(Cliant.user.id)
+    )
+    await interaction.response.send_message(system_info)
+    
+@Cliant.tree.command(name="user", description="Show user information")
+@app_commands.guilds(guild_id)
+async def user_info(interaction: discord.Interaction):
+    user = interaction.user
+    user_info = (
+        f"User: {user.name}\n"
+        f"User ID: {user.id}\n"
+        f"Joined at: {user.joined_at}\n"
+        f"Avatar URL: {user.avatar.url if user.avatar else 'No avatar'}"
+    )
+    await interaction.response.send_message(user_info)
+@Cliant.tree.command(name="apistatus", description="Show API status")
+@app_commands.guilds(guild_id)
+async def api_status(interaction: discord.Interaction):
+    api_status = "API is operational."
+    await interaction.response.send_message(api_status)
+
+@Cliant.tree.command(name="refresh", description="Refresh commands")
+@app_commands.guilds(guild_id)
+async def refresh_commands(interaction: discord.Interaction):
+    try:
+        synced = await Cliant.tree.sync()
+        await interaction.response.send_message(f'Commands refreshed. Synced {len(synced)} commands globally.')
+    except Exception as e:
+        await interaction.response.send_message(f'Error refreshing commands: {e}')
+
+@Cliant.tree.command(name="purge", description="Purge a specified number of messages")
+@app_commands.guilds(guild_id)
+@app_commands.describe(count="Number of messages to purge")
+async def purge_messages(interaction: discord.Interaction, count: int):
+    if count <= 0:
+        await interaction.response.send_message('Please specify a valid number of messages to purge.')
+        return
+    await interaction.channel.purge(limit=count)
+    await interaction.response.send_message(f'Purged {count} messages.', delete_after=5)
+
+@Cliant.tree.command(name="coin", description="Flip a coin")
+@app_commands.guilds(guild_id)
+async def coin_flip(interaction: discord.Interaction):
+    import random
+    result = random.choice(['Heads', 'Tails'])
+    await interaction.response.send_message(f'Coin flip result: {result}')
+
+@Cliant.tree.command(name="shell", description="Execute a shell command")
+@app_commands.guilds(guild_id)
+@app_commands.describe(command="Shell command to execute")
+async def shell_command(interaction: discord.Interaction, command: str):
+    import subprocess
+    try:
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        if result.returncode == 0:
+            await interaction.response.send_message(f'Shell command executed successfully:\n{result.stdout}')
+        else:
+            await interaction.response.send_message(f'Error executing shell command:\n{result.stderr}')
+
+    except Exception as e:
+        await interaction.response.send_message(f'Error executing shell command: {e}')
+
+@Cliant.tree.command(name="debug_exec", description="Execute debug Python code")
+@app_commands.guilds(guild_id)
+@app_commands.describe(code="Python code to execute")
+async def debug_exec(interaction: discord.Interaction, code: str):
+    await interaction.response.send_message(f'Executing debug code: `{code}`')  
+    try:
+        exec(code)
+        await interaction.followup.send('Debug code executed successfully.')
+    except Exception as e:
+        await interaction.followup.send(f'Error executing debug code: {e}')
+
+@Cliant.tree.command(name="restart", description="Restart the bot")
+@app_commands.guilds(guild_id)
+async def restart_bot(interaction: discord.Interaction):
+    await interaction.response.send_message('Restarting the bot...')
+    await Cliant.close()
+    await Cliant.start(Cliant.user.token)
+    
+@Cliant.tree.command(name="debug", description="Activate debugging mode")
+@app_commands.guilds(guild_id)
+async def debug_mode(interaction: discord.Interaction):
+    await interaction.response.send_message('Debugging mode activated. Please provide the code to debug.')
+    await Cliant.change_presence(activity=discord.Game(name="Debugging Mode"))
+
+@Cliant.tree.command(name="latency", description="Show the current latency of the bot")
+@app_commands.guilds(guild_id)
+async def latency(interaction: discord.Interaction):
+    latency = Cliant.latency * 1000
+    await interaction.response.send_message(f'Current latency: {latency:.2f} ms')
+
+@Cliant.tree.command(name="test", description="Test command")
+@app_commands.guilds(guild_id)
+async def test_command(interaction: discord.Interaction):
+    await interaction.response.send_message('Test command executed successfully!')
+
+@Cliant.tree.command(name="check", description="Check system status")
+@app_commands.guilds(guild_id)
+async def check_system(interaction: discord.Interaction):
+    await interaction.response.send_message('Checking system status...')
+    system_status = "System is running smoothly."
+    await interaction.followup.send(system_status)
+
+@Cliant.tree.command(name="security", description="Show security status")
+@app_commands.guilds(guild_id)
+async def security_status(interaction: discord.Interaction):
+    security_info = (
+        "Security Status:\n"
+        "No known vulnerabilities detected.\n"
+        "All systems operational."
+    )
+    await interaction.response.send_message(security_info)
+
+@Cliant.tree.command(name="server", description="Show server information")
+@app_commands.guilds(guild_id)
+async def server_info(interaction: discord.Interaction):
+    server = interaction.guild
+    server_info = (
+        f"Server Name: {server.name}\n"
+        f"Total Members: {server.member_count}\n"
+        f"Server ID: {server.id}"
+    )
+    await interaction.response.send_message(server_info)
+
+@Cliant.tree.command(name="run", description="Run Python code")
+@app_commands.guilds(guild_id)
+@app_commands.describe(code="Python code to run")
+async def run_code(interaction: discord.Interaction, code: str):
+    await interaction.response.send_message(f'Running code: `{code}`')
+    try:
+        exec(code)
+        await interaction.followup.send('Code run successfully.')
+    except Exception as e:
+        await interaction.followup.send(f'Error running code: {e}')
+
+Cliant.run('Bot id token')
